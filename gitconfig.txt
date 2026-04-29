@@ -1,0 +1,11 @@
+git config --global user.name ane-noelle
+git config --global user.email anenoelle60@gmail.com
+
+-- criar o projeto--
+npx create-expo-app@latest EtecBus --template blank
+
+cd EtecBus
+
+npx expo install expo-location react-native-webview
+
+npx expo start --tunnel
