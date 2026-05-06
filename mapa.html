@@ -18,7 +18,55 @@
     const userCoord = ${userJSON};
     const nearestId = "${nearestStopId || ''}";
 
-    const map = L.map('map', {zoomControl:true}).
+    const map = L.map('map', {zoomControl:true}).setview(
+        [SCHOOL.cordinate.latitude, SCHOOL.cordinate.longitude], 14
+    );
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a',
+            maxZoom: 19
+    });addTo(map);
+
+    function makeIcon(color, emoji) {
+        return L.divIcon({
+          className: '',
+          html: `<div style="background:${color};width:36px; border-radius: 50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.35);display:flex;align-items:center; justify-content:center;"><span style="transform:rotate(45deg); font-size:16px">${emoji}</span></div>`,
+          iconSize:[36,36],iconAnchor:[18,36], popup:[0,-38]
+        });
+    }
+
+    const schoolIcon = makeIcon('#E53935', '🏫');
+    const stopDefault = makeIcon('#FFA726', '🚌');
+    const stopNearest = makeIcon('#00ACC1', '🚌');
+    const userIconObj = makeIcon('#43A047', '📍');
+
+
+    //Escola
+    L.marker([SCHOOL.cordinate.latitude, SCHOOL.cordinate.longitude]
+        {icon:schoolIcon})
+        .addTo(map)
+        .bindPopup('<b>'+SCHOOL.name+'</b><br>'+SCHOOL.adress);
+
+        // Pontos de onibus
+        BUS_STOPS.forEach(stop => {
+            const icon = stop.id === nearestId ? stopNearest : stopDefault;
+            L.marker([stop.cordinate.latitude, stop.cordinate.longitude], {icon})
+            .addTo(map)
+            .bindPopup('<b>'+stop.name+'</b><br>Linhas'+stop.lines.join(', '))
+            .on('click', () => {
+                window.ReactNativeWeb && window.ReactNativeWeb.postMessage(
+                    JSON.stringify({type: 'SELECT_STOP', stopId:stop.id})
+                )
+            });
+        });
+
+        //LOcalizacao do usuario
+        if (userCoord) {
+            l.Marker([userCoord.latitude, userCoord], {icon:userIco})
+            .addTo(map).bindPopup('<b> VOce esta aqui</b>');
+        }
+
+    
   </script>
 </body>
 </html>
